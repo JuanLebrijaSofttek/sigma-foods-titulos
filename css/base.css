@@ -1,0 +1,58 @@
+/* ============================================================
+   Base / reset
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1,h2,h3,h4,h5 { margin: 0; font-weight: 650; letter-spacing: -0.01em; color: var(--text); }
+h1 { font-size: 24px; line-height: 1.25; }
+h2 { font-size: 19px; }
+h3 { font-size: 16px; }
+h4 { font-size: 14px; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; font-size: 14px; }
+ul { margin: 0; padding: 0; list-style: none; }
+img, svg { display: block; }
+::selection { background: var(--yellow-bg); }
+
+/* Scrollbar sutil */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #D5D8DE; border-radius: 8px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: #BFC3CB; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.mono-num { font-variant-numeric: tabular-nums; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.muted { color: var(--text-muted); }
+.secondary { color: var(--text-secondary); }
+.strong { font-weight: 650; }
+.small { font-size: 12.5px; }
+.tiny { font-size: 11.5px; }
+.hidden { display: none !important; }
+.grow { flex: 1; }
+.nowrap { white-space: nowrap; }
+
+/* Utilidades flex/grid */
+.row { display: flex; align-items: center; }
+.row.gap-1 { gap: var(--sp-1); }
+.row.gap-2 { gap: var(--sp-2); }
+.row.gap-3 { gap: var(--sp-3); }
+.row.gap-4 { gap: var(--sp-4); }
+.col { display: flex; flex-direction: column; }
+.col.gap-2 { gap: var(--sp-2); }
+.col.gap-3 { gap: var(--sp-3); }
+.col.gap-4 { gap: var(--sp-4); }
+.between { justify-content: space-between; }
+.wrap { flex-wrap: wrap; }
+.items-start { align-items: flex-start; }

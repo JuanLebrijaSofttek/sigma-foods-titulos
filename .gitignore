@@ -1,0 +1,9 @@
+# OS
+.DS_Store
+
+# Server logs / local artifacts
+*.log
+
+# Editor
+.vscode/
+.idea/
