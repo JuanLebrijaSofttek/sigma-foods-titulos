@@ -5,19 +5,19 @@
 /* ---------- 20. Usuarios y roles ---------- */
 function screenUsuarios() {
   const cols = [
-    { key: 'nombre', label: 'Usuario', render: u => `<div class="strong">${esc(u.nombre)}</div><div class="tiny muted">${esc(u.email)}</div>` },
-    { key: 'origen', label: 'Origen', render: () => `<span class="badge badge-parity">${ICON('microsoft')} Entra ID</span>` },
-    { key: 'rol', label: 'Rol' },
-    { key: 'estado', label: 'Estado', render: u => u.estado === 'Activo' ? `<span class="badge badge-success">Activo</span>` : `<span class="badge badge-warning">${esc(u.estado)}</span>` },
-    { key: 'ultimo', label: 'Último acceso' },
+    { key: 'nombre', label: 'Usuario', render: u => `<div class="user-cell"><span class="user-cell-avatar">${esc(u.nombre.split(' ').map(p => p[0]).slice(0, 2).join(''))}</span><div><div class="strong">${esc(u.nombre)}</div><div class="tiny muted">${esc(u.email)}</div></div></div>` },
+    { key: 'origen', label: 'Origen', render: () => `<span class="badge badge-parity user-origin">${ICON('microsoft')} <span>Entra ID</span></span>` },
+    { key: 'rol', label: 'Rol', render: u => `<span class="user-role">${esc(u.rol)}</span>` },
+    { key: 'estado', label: 'Estado', render: u => `<span class="status-pill ${u.estado === 'Activo' ? 'is-active' : 'is-suspended'}"><span class="status-dot"></span>${esc(u.estado)}</span>` },
+    { key: 'ultimo', label: 'Último acceso', render: u => `<span class="last-access">${esc(u.ultimo)}</span>` },
   ];
   const roles = ['Operador', 'Reporteador', 'Administrador', 'Auditor'];
   const matriz = DATA.emisoras.map(e => `<tr><td class="strong">${e.id} ${esc(e.nombre)}</td>${roles.map(() => `<td class="perm-cell"><input type="checkbox" ${e.id === '01' ? 'checked' : Math.random() > 0.6 ? 'checked' : ''}></td>`).join('')}</tr>`).join('');
   return pageHead({ crumbs: ['Seguridad y Auditoría', 'Usuarios y roles'], title: 'Usuarios y roles', sub: 'Los usuarios provienen de Microsoft Entra ID. Asigna emisoras y roles.' }) + `
-  <div class="card" style="margin-bottom:20px"><div class="card-head"><h3>Usuarios</h3><span class="badge badge-parity">${ICON('microsoft')} Sincronizado con Entra ID</span></div>${dataTable({ cols, rows: DATA.usuarios })}</div>
+  <div class="card users-card" style="margin-bottom:20px"><div class="card-head"><div><h3>Usuarios</h3><p class="card-subtitle">Directorio activo de la organización</p></div><span class="badge badge-parity">${ICON('microsoft')} Sincronizado con Entra ID</span></div>${dataTable({ cols, rows: DATA.usuarios })}</div>
   <div class="card"><div class="card-head"><h3>Matriz de permisos</h3></div><div class="card-body">
     <div class="alert alert-info" style="margin-bottom:14px">${ICON('info')} Primero defines a qué emisoras ve, luego qué puede hacer.</div>
-    <div class="table-wrap"><table class="tbl"><thead><tr><th>Emisora</th>${roles.map(r => `<th class="text-center">${r}</th>`).join('')}</tr></thead><tbody>${matriz}</tbody></table></div>
+    <div class="permissions-table-wrap"><table class="tbl permissions-table"><thead><tr><th>Emisora</th>${roles.map(r => `<th class="text-center">${r}</th>`).join('')}</tr></thead><tbody>${matriz}</tbody></table></div>
     <div class="row" style="margin-top:14px"><button class="btn btn-primary" onclick="toastBitacora('Cambio de permisos','Matriz de permisos actualizada')">Guardar permisos</button></div>
   </div></div>`;
 }

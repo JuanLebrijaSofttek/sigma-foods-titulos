@@ -11,7 +11,7 @@ function screenConsulta(tipo) {
   const chips = ['Rango de número', 'Por accionista', 'Rango de fechas', ...chipsExtra];
   return pageHead({ crumbs: ['Consultas', titulos[tipo].replace('Consulta de ', '')], title: titulos[tipo], sub: 'Filtra con criterios en chips y revisa el detalle. Exporta el resultado.', actions: exportBar(titulos[tipo]) }) + `
   <div class="card" style="margin-bottom:16px"><div class="card-body">
-    <div class="chip-row">${chips.map((c, i) => `<button class="chip ${i < 2 ? 'active' : ''}">${ICON('filter')} ${esc(c)} ${i < 2 ? `<span class="x">${ICON('x')}</span>` : ''}</button>`).join('')}<button class="chip">${ICON('plus')} Agregar criterio</button></div>
+    <div class="chip-row">${chips.map((c, i) => `<button class="chip ${i < 2 ? 'active' : ''}">${ICON('filter', 'query-filter-icon')} ${esc(c)} ${i < 2 ? `<span class="x">${ICON('x')}</span>` : ''}</button>`).join('')}<button class="chip">${ICON('plus')} Agregar criterio</button></div>
     <div class="grid grid-3" style="margin-top:14px">
       <div class="field"><label>Número (del)</label><input class="input num" placeholder="1"></div>
       <div class="field"><label>Número (al)</label><input class="input num" placeholder="200"></div>

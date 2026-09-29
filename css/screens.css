@@ -8,6 +8,7 @@
 .login-story::after { content:""; position:absolute; right:-120px; top:-120px; width: 460px; height:460px; border-radius:50%; background: radial-gradient(circle, rgba(209,16,58,0.32), transparent 70%); }
 .login-story::before { content:""; position:absolute; left:-80px; bottom:-80px; width: 320px; height:320px; border-radius:50%; background: radial-gradient(circle, rgba(255,197,49,0.14), transparent 70%); }
 .login-story-inner { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; padding: 48px 56px; gap: 28px; }
+.login-story-inner .logo { width: 38px; height: 38px; object-fit: contain; flex: none; }
 .login-badge { display:inline-block; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.1); color:#fff; font-size: 12px; font-weight: 600; margin-bottom: 20px; }
 .login-title { color: #fff; font-size: 40px; line-height: 1.12; font-weight: 750; letter-spacing: -0.02em; max-width: 540px; }
 .login-sub { color: #C4C8CF; font-size: 16px; margin-top: 16px; max-width: 480px; line-height: 1.55; }
@@ -25,7 +26,8 @@
 @media (max-width: 900px) { .login-page { grid-template-columns: 1fr; } .login-story { display: none; } }
 
 /* ---- Inicio ---- */
-.caso-card { position: relative; overflow: hidden; border-color: #F0D0D8; }
+.page-head .ph-left h1 { letter-spacing: -0.025em; }
+.caso-card { position: relative; overflow: hidden; border-color: #F0D0D8; box-shadow: 0 8px 28px rgba(209,16,58,0.06); }
 .caso-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--sigma-red); }
 .caso-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 @media (max-width:720px){ .caso-facts { grid-template-columns: 1fr 1fr; } }
@@ -33,6 +35,9 @@
 .act-item:last-child { border-bottom: none; }
 .act-ic { width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); border:1px solid var(--border); display:grid; place-items:center; color: var(--text-muted); flex:none; }
 .act-ic svg { width: 15px; height: 15px; }
+.kpi .kpi-icon svg { width: 18px !important; height: 18px !important; }
+.kpi .kpi-delta svg { width: 14px !important; height: 14px !important; }
+.badge svg { width: 13px !important; height: 13px !important; }
 .quick-grid { gap: 10px; }
 .quick-item { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); text-align: left; font-size: 13px; font-weight: 600; color: var(--text); transition: all var(--t-fast); }
 .quick-item:hover { border-color: var(--sigma-red); box-shadow: var(--shadow-sm); }
@@ -56,6 +61,24 @@
 .verify-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
 .vrow { display: flex; flex-direction: column; gap: 2px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
 @media(max-width:720px){ .verify-grid { grid-template-columns: 1fr; } }
+
+/* ---- Usuarios y roles ---- */
+.users-card .card-head { padding: 18px 20px; }
+.users-card .card-subtitle { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+.users-card .tbl-scroll { overflow-x: auto; }
+.users-card table.tbl { min-width: 720px; }
+.users-card table.tbl thead th { padding-top: 12px; padding-bottom: 12px; }
+.users-card table.tbl tbody td { padding-top: 14px; padding-bottom: 14px; }
+.user-cell { display: flex; align-items: center; gap: 10px; min-width: 230px; }
+.user-cell-avatar { width: 32px; height: 32px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--red-bg); color: var(--sigma-red); font-size: 11px; font-weight: 750; letter-spacing: .01em; }
+.user-origin { gap: 6px; }
+.user-origin svg { width: 14px !important; height: 14px !important; }
+.user-role { color: var(--text-secondary); font-weight: 600; }
+.status-pill { display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 9px; border-radius: var(--r-pill); font-size: 11.5px; font-weight: 650; white-space: nowrap; }
+.status-pill.is-active { background: var(--success-bg); color: var(--success); }
+.status-pill.is-suspended { background: var(--warning-bg); color: var(--warning); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.last-access { color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* ---- Checklist ---- */
 .checklist { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px; }
@@ -97,6 +120,9 @@
 
 /* ---- Chips filtro ---- */
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-row .chip { min-height: 32px; }
+.chip-row .query-filter-icon { width: 15px !important; height: 15px !important; flex: 0 0 15px !important; stroke-width: 1.7; }
+.chip-row .chip .x svg { width: 13px !important; height: 13px !important; flex: 0 0 13px !important; }
 
 /* ---- Migración ---- */
 .mig-check { display:flex; align-items:center; gap: 6px; color: var(--success); font-weight: 600; font-size: 12.5px; }
@@ -115,12 +141,20 @@
 .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
 /* ---- Matriz permisos ---- */
+.permissions-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+.permissions-table { width: 100%; min-width: 680px; table-layout: fixed; }
+.permissions-table th:first-child, .permissions-table td:first-child { width: 34%; text-align: left; }
+.permissions-table th:not(:first-child), .permissions-table td:not(:first-child) { width: 16.5%; text-align: center; }
+.permissions-table tbody td { height: 48px; }
+.permissions-table .perm-cell { display: table-cell; vertical-align: middle; text-align: center; }
+.permissions-table .perm-cell input { display: inline-block; margin: 0; vertical-align: middle; }
 .perm-cell { display:grid; place-items:center; }
 .perm-cell input { width: 16px; height: 16px; accent-color: var(--sigma-red); }
 
 /* ---- Tree ---- */
 .tree { font-size: 13.5px; }
 .tree-node { padding: 7px 10px; border-radius: var(--r-md); cursor: pointer; display:flex; align-items:center; gap: 8px; }
+.tree-node svg { width: 15px; height: 15px; flex: none; }
 .tree-node:hover { background: var(--surface-2); }
 .tree-node.active { background: var(--red-bg); color: var(--sigma-red); font-weight: 600; }
 .tree-child { padding-left: 20px; }

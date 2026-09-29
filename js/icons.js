@@ -68,11 +68,7 @@ function ICON(name, cls = '') {
   return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 }
 
-// Logo Sigma (rojo)
+// Logo Sigma (asset de marca)
 function SIGMA_LOGO(size = 30) {
-  return `<svg class="logo" width="${size}" height="${size}" viewBox="0 0 40 40" fill="none">
-    <rect width="40" height="40" rx="9" fill="#D1103A"/>
-    <path d="M27 12H14l6.5 8L14 28h13" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <circle cx="29" cy="12" r="2.2" fill="#FFC531"/>
-  </svg>`;
+  return `<img class="logo" src="SigmaLogo.png" width="${size}" height="${size}" alt="Sigma Foods" />`;
 }
