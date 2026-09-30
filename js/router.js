@@ -22,6 +22,7 @@ const ROUTES = {
   'config/emisiones': () => screenEmisiones(),
   'config/cupones': () => screenCupones(),
   'config/parametros': () => screenParametros(),
+  'config/plantillas': () => screenPlantillas(),
   'config/catalogos': () => screenCatalogos(),
   'seguridad/usuarios': () => screenUsuarios(),
   'seguridad/tenants': () => screenTenants(),

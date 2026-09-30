@@ -10,7 +10,7 @@ const NAV = [
       { label: 'Sustitución', route: 'titulos/sustitucion' },
       { label: 'Endoso', route: 'titulos/endoso' },
       { label: 'Reimpresión y anulación', route: 'titulos/reimpresion' },
-      { label: 'Pendientes de canje', route: 'titulos/pendientes', badge: 'nav-count' },
+      { label: 'Títulos pendientes', route: 'titulos/pendientes' },
     ]
   },
   {
@@ -35,6 +35,7 @@ const NAV = [
       { label: 'Emisiones', route: 'config/emisiones' },
       { label: 'Cupones y eventos corporativos', route: 'config/cupones' },
       { label: 'Parámetros de emisora', route: 'config/parametros' },
+      { label: 'Plantillas de impresión', route: 'config/plantillas' },
       { label: 'Catálogos geográficos', route: 'config/catalogos' },
     ]
   },
@@ -62,9 +63,26 @@ function renderShell(activeRoute) {
   </div>`;
 }
 
+// Menú filtrado por rol demo ("Ver como")
+function navForRole() {
+  const rol = STATE.rolDemo;
+  if (rol === 'Administrador') return NAV;
+  const allow = {
+    'Operador': ['inicio', 'titulos', 'liquidaciones', 'accionistas', 'consultas', 'reportes'],
+    'Reporteador': ['inicio', 'consultas', 'reportes'],
+    'Auditor': ['inicio', 'seguridad'],
+  }[rol] || NAV.map(n => n.id);
+  return NAV.filter(n => allow.includes(n.id)).map(n => {
+    if (rol === 'Auditor' && n.id === 'seguridad') {
+      return Object.assign({}, n, { label: 'Auditoría', children: n.children.filter(c => c.route === 'seguridad/auditoria' || c.route === 'seguridad/impresion') });
+    }
+    return n;
+  });
+}
+
 function renderSidebar(activeRoute, collapsed) {
   const top = activeRoute.split('/')[0];
-  const nav = NAV.map(item => {
+  const nav = navForRole().map(item => {
     if (item.children) {
       const openCls = top === item.id ? 'open' : '';
       const subOpen = top === item.id ? 'open' : '';
@@ -115,12 +133,11 @@ function renderHeader() {
   return `<header class="header">
     <button class="icon-btn" onclick="toggleSidebar()" title="Menú">${ICON('panelLeft')}</button>
     ${selector}
-    <div class="header-search">${ICON('search')}<input placeholder="Busca accionista, título o folio" onkeydown="if(event.key==='Enter')globalSearch(this.value)"></div>
+    <div class="header-spacer"></div>
     <span class="env-badge">${DATA.ambiente}</span>
-    <button class="icon-btn" title="Notificaciones">${ICON('bell')}</button>
     <div class="avatar-btn" onclick="openUserMenu(event)">
       <span class="avatar">${DATA.user.iniciales}</span>
-      <div><div class="u-name">${esc(DATA.user.nombre)}</div><div class="u-role">${esc(DATA.user.rol)}</div></div>
+      <div><div class="u-name">${esc(DATA.user.nombre)}</div><div class="u-role">${esc(STATE.rolDemo)}</div></div>
       <span class="chev muted">${ICON('chevronDown')}</span>
     </div>
   </header>`;
@@ -152,11 +169,26 @@ function switchEmisora(id) {
 function openUserMenu(e) {
   e.stopPropagation(); closeDropdowns();
   const rect = e.currentTarget.getBoundingClientRect();
-  const html = `<div style="padding:10px 12px"><div class="strong">${esc(DATA.user.nombre)}</div><div class="tiny muted">${esc(DATA.user.email)}</div><div class="badge badge-parity" style="margin-top:6px">${esc(DATA.user.rol)}</div></div>
+  const roles = ['Operador', 'Reporteador', 'Auditor', 'Administrador'];
+  const verComo = roles.map(r => `<div class="dd-item" onclick="verComo('${r}')">${STATE.rolDemo === r ? ICON('check') : '<span style=\'width:16px;display:inline-block\'></span>'} ${r}</div>`).join('');
+  const html = `<div style="padding:10px 12px"><div class="strong">${esc(DATA.user.nombre)}</div><div class="tiny muted">${esc(DATA.user.email)}</div><div class="badge" style="margin-top:6px">${esc(STATE.rolDemo)}</div></div>
+    <div class="dd-sep"></div>
+    <div style="padding:6px 12px 2px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase">Ver como (demo)</div>
+    ${verComo}
     <div class="dd-sep"></div>
     <div class="dd-item" onclick="closeDropdowns();go('seguridad/sesion')">${ICON('clock')} Sesión</div>
     <div class="dd-item" onclick="logout()">${ICON('logout')} Cerrar sesión</div>`;
   showDropdown(rect.right - 260, rect.bottom + 6, html, 260);
+}
+function verComo(rol) {
+  STATE.rolDemo = rol;
+  closeDropdowns();
+  toast('Vista de rol', 'Ahora ves el sistema como ' + rol);
+  // Si el rol ya no tiene acceso a la ruta actual, ir a Inicio
+  const allowed = navForRole().flatMap(n => n.children ? n.children.map(c => c.route) : [n.route]);
+  const cur = currentRoute();
+  if (!allowed.includes(cur) && !allowed.some(r => cur.startsWith(r.split('/')[0]))) { go('inicio'); return; }
+  render(cur);
 }
 
 function showDropdown(x, y, html, w = 260) {
@@ -165,13 +197,5 @@ function showDropdown(x, y, html, w = 260) {
     <div class="dropdown" style="left:${x}px;top:${y}px;min-width:${w}px" onclick="event.stopPropagation()">${html}</div>`;
 }
 function closeDropdowns() { document.getElementById('overlay-layer').innerHTML = ''; }
-
-function globalSearch(q) {
-  if (!q.trim()) return;
-  toast('Búsqueda', `Resultados para “${q}”`);
-  // Heurística: si menciona a Rogelio o Título 17, va al canje
-  if (/rogelio|17/i.test(q)) go('titulos/canje');
-  else if (/accionista|garza|salinas|elizondo/i.test(q)) go('accionistas');
-}
 
 function logout() { STATE.autenticado = false; closeDropdowns(); location.hash = '#/login'; }

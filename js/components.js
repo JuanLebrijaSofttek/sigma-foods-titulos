@@ -38,9 +38,13 @@ function openModal(html, { size = '' } = {}) {
 function closeModal() { document.getElementById('overlay-layer').innerHTML = ''; document.removeEventListener('keydown', escClose); }
 function escClose(e) { if (e.key === 'Escape') closeModal(); }
 
-// ---- Badges ----
-function badgeNew() { return `<span class="badge badge-new">${ICON('plus')} Nuevo</span>`; }
-function badgeParity() { return `<span class="badge badge-parity">${ICON('checkCircle')} Paridad con sistema actual</span>`; }
+// ---- Badges neutros (Bloque 0) ----
+// "Formato actual": reportes/pantallas que existen hoy.
+// "Mejora": lo nuevo. Ya no se usan etiquetas de paridad.
+function badgeNew() { return `<span class="badge badge-new">${ICON('plus')} Mejora</span>`; }
+function badgeActual() { return `<span class="badge badge-actual">${ICON('file')} Formato actual</span>`; }
+// Alias de compatibilidad: badgeParity ahora rinde "Formato actual".
+function badgeParity() { return badgeActual(); }
 
 // ---- Campo enmascarado ----
 function maskedField(value, kind = 'rfc') {

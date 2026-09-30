@@ -17,7 +17,6 @@ function screenLogin() {
           <ul class="login-points">
             <li>${ICON('checkCircle')} Cálculos automáticos de split, contra-split y fracciones sobrantes</li>
             <li>${ICON('checkCircle')} Cada operación explicada y registrada en bitácora</li>
-            <li>${ICON('checkCircle')} Paridad verificada contra el sistema de escritorio actual</li>
           </ul>
         </div>
         <div class="login-foot">SIGMA FOODS, S.A.B. DE C.V. · Ambiente ${DATA.ambiente}</div>

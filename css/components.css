@@ -41,6 +41,7 @@
 .badge svg { width: 13px; height: 13px; }
 .badge-new { background: var(--yellow-bg); color: #8A6A00; }
 .badge-parity { background: var(--info-bg); color: var(--info); }
+.badge-actual { background: #EEF0F3; color: var(--text-secondary); }
 .badge-success { background: var(--success-bg); color: var(--success); }
 .badge-warning { background: var(--warning-bg); color: var(--warning); }
 .badge-error { background: var(--error-bg); color: var(--error); }

@@ -3,23 +3,47 @@
    ============================================================ */
 
 /* ---------- 20. Usuarios y roles ---------- */
+let _usuarioSel = 0;
 function screenUsuarios() {
   const cols = [
     { key: 'nombre', label: 'Usuario', render: u => `<div class="user-cell"><span class="user-cell-avatar">${esc(u.nombre.split(' ').map(p => p[0]).slice(0, 2).join(''))}</span><div><div class="strong">${esc(u.nombre)}</div><div class="tiny muted">${esc(u.email)}</div></div></div>` },
-    { key: 'origen', label: 'Origen', render: () => `<span class="badge badge-parity user-origin">${ICON('microsoft')} <span>Entra ID</span></span>` },
+    { key: 'origen', label: 'Origen', render: () => `<span class="badge badge-actual user-origin">${ICON('microsoft')} <span>Entra ID</span></span>` },
     { key: 'rol', label: 'Rol', render: u => `<span class="user-role">${esc(u.rol)}</span>` },
     { key: 'estado', label: 'Estado', render: u => `<span class="status-pill ${u.estado === 'Activo' ? 'is-active' : 'is-suspended'}"><span class="status-dot"></span>${esc(u.estado)}</span>` },
     { key: 'ultimo', label: 'Último acceso', render: u => `<span class="last-access">${esc(u.ultimo)}</span>` },
+    { key: 'acc', label: '', render: (u) => `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();modalAsignarAccesos(${DATA.usuarios.indexOf(u)})">${ICON('shield')} Asignar accesos</button>` },
   ];
+  const u = DATA.usuarios[_usuarioSel];
   const roles = ['Operador', 'Reporteador', 'Administrador', 'Auditor'];
-  const matriz = DATA.emisoras.map(e => `<tr><td class="strong">${e.id} ${esc(e.nombre)}</td>${roles.map(() => `<td class="perm-cell"><input type="checkbox" ${e.id === '01' ? 'checked' : Math.random() > 0.6 ? 'checked' : ''}></td>`).join('')}</tr>`).join('');
-  return pageHead({ crumbs: ['Seguridad y Auditoría', 'Usuarios y roles'], title: 'Usuarios y roles', sub: 'Los usuarios provienen de Microsoft Entra ID. Asigna emisoras y roles.' }) + `
-  <div class="card users-card" style="margin-bottom:20px"><div class="card-head"><div><h3>Usuarios</h3><p class="card-subtitle">Directorio activo de la organización</p></div><span class="badge badge-parity">${ICON('microsoft')} Sincronizado con Entra ID</span></div>${dataTable({ cols, rows: DATA.usuarios })}</div>
-  <div class="card"><div class="card-head"><h3>Matriz de permisos</h3></div><div class="card-body">
-    <div class="alert alert-info" style="margin-bottom:14px">${ICON('info')} Primero defines a qué emisoras ve, luego qué puede hacer.</div>
+  // Matriz emisora × rol del usuario seleccionado
+  const accesos = u.accesos || { '01': 'Administrador' };
+  const matriz = DATA.emisoras.map(e => `<tr><td class="strong">${e.id} ${esc(e.nombre)}</td>${roles.map(r => `<td class="perm-cell"><input type="checkbox" ${accesos[e.id] === r ? 'checked' : ''}></td>`).join('')}</tr>`).join('');
+  return pageHead({ crumbs: ['Seguridad y Auditoría', 'Usuarios y roles'], title: 'Usuarios y roles', sub: 'Los usuarios provienen de Microsoft Entra ID. Segmenta primero por emisora y luego por rol.' }) + `
+  <div class="card users-card" style="margin-bottom:20px"><div class="card-head"><div><h3>Usuarios</h3><p class="card-subtitle">Directorio activo de la organización</p></div><span class="badge badge-actual">${ICON('microsoft')} Sincronizado con Entra ID</span></div>${dataTable({ cols, rows: DATA.usuarios })}</div>
+  <div class="card"><div class="card-head"><h3>Accesos de ${esc(u.nombre)}</h3><span class="badge">${esc(u.rol)}</span></div><div class="card-body">
+    <div class="alert alert-info" style="margin-bottom:14px">${ICON('info')} La segmentación es primero por emisora (a nivel de datos) y luego por rol. Usa <b>Asignar accesos</b> para editar a cada usuario.</div>
     <div class="permissions-table-wrap"><table class="tbl permissions-table"><thead><tr><th>Emisora</th>${roles.map(r => `<th class="text-center">${r}</th>`).join('')}</tr></thead><tbody>${matriz}</tbody></table></div>
-    <div class="row" style="margin-top:14px"><button class="btn btn-primary" onclick="toastBitacora('Cambio de permisos','Matriz de permisos actualizada')">Guardar permisos</button></div>
+    <div class="row" style="margin-top:14px"><button class="btn btn-primary" onclick="toastBitacora('Cambio de permisos','Permisos de ${esc(u.nombre)} actualizados')">Guardar permisos</button></div>
   </div></div>`;
+}
+function modalAsignarAccesos(i) {
+  _usuarioSel = i;
+  const u = DATA.usuarios[i];
+  const accesos = u.accesos || { '01': 'Administrador' };
+  const roles = ['Operador', 'Reporteador', 'Administrador'];
+  const filas = DATA.emisoras.map(e => `<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+    <label class="check-item" style="min-width:220px"><input type="checkbox" ${accesos[e.id] ? 'checked' : ''}> <span>${e.id} ${esc(e.nombre)}</span></label>
+    <select class="select" style="max-width:200px"><option value="">— Sin acceso —</option>${roles.map(r => `<option ${accesos[e.id] === r ? 'selected' : ''}>${r}</option>`).join('')}</select>
+  </div>`).join('');
+  openModal(`<div class="modal-head"><h3>Asignar accesos · ${esc(u.nombre)}</h3><button class="icon-btn" onclick="closeModal()">${ICON('x')}</button></div>
+    <div class="modal-body col gap-4">
+      <div><div class="section-title" style="margin-bottom:6px">Paso 1 · Emisoras a las que tiene acceso</div><div class="section-title" style="margin-bottom:6px">Paso 2 · Rol en cada emisora</div>
+        <div>${filas}</div>
+      </div>
+      <div class="alert alert-info">${ICON('info')} El rol <b>Auditor</b> se asigna como rol adicional para ver las bitácoras del sistema.</div>
+      <label class="check-item"><input type="checkbox" ${u.rol === 'Auditor' ? 'checked' : ''}> <span>Rol adicional: Auditor (bitácoras del sistema)</span></label>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="closeModal();toastBitacora('Cambio de permisos','Accesos de ${esc(u.nombre)} asignados')">Guardar accesos</button></div>`, { size: 'lg' });
 }
 
 /* ---------- 21. Tenants Entra ID ---------- */
@@ -28,11 +52,11 @@ function screenTenants() {
     { key: 'dominio', label: 'Dominio', render: t => `<span class="strong">${esc(t.dominio)}</span>` },
     { key: 'tenantId', label: 'Tenant ID' },
     { key: 'clientId', label: 'Client ID' },
-    { key: 'credencial', label: 'Método de credencial', render: t => t.credencial === 'Certificado' ? `<span class="badge badge-success">${ICON('shield')} Certificado (recomendado)</span>` : `<span class="badge badge-warning">${ICON('key')} Secreto</span>` },
+    { key: 'credencial', label: 'Método de credencial', render: t => t.credencial === 'Certificado' ? `<span class="badge badge-success">${ICON('shield')} Certificado (recomendado)</span>` : `<span class="badge">${ICON('key')} Client secret</span>` },
     { key: 'estado', label: 'Estado', render: t => t.estado === 'Principal' ? `<span class="badge badge-red">Principal</span>` : `<span class="badge badge-success">Activo</span>` },
   ];
-  return pageHead({ crumbs: ['Seguridad y Auditoría', 'Tenants Entra ID'], title: 'Tenants Entra ID', sub: 'Tenants por dominio para autenticación multi-organización.', actions: `<button class="btn btn-primary" onclick="toastBitacora('Configuración','Tenant registrado')">${ICON('plus')} Registrar tenant</button>` })
-    + `<div class="alert alert-info" style="margin-bottom:14px">${ICON('info')} El tenant principal del administrador se registra al instalar.</div>`
+  return pageHead({ crumbs: ['Seguridad y Auditoría', 'Tenants Entra ID'], title: 'Tenants Entra ID', sub: 'Tenants por dominio para autenticación multi-organización.', actions: `<button class="btn btn-primary" onclick="toastBitacora('Configuración','Tenant registrado')">${ICON('plus')} Registrar tenant</button>` })
+    + `<div class="alert alert-info" style="margin-bottom:14px">${ICON('info')} El método predeterminado es <b>Client secret</b>. El <b>Certificado</b> se ofrece como opción recomendada. El tenant principal del administrador se registra al instalar.</div>`
     + dataTable({ cols, rows: DATA.tenants });
 }
 
@@ -57,7 +81,7 @@ function screenAuditoria() {
       <div class="field"><label>Evento</label><select class="select"><option>Todos</option>${eventos.map(e => `<option>${e}</option>`).join('')}</select></div>
       <div class="field"><label>Usuario</label><select class="select"><option>Todos</option>${DATA.usuarios.map(u => `<option>${esc(u.nombre)}</option>`).join('')}</select></div>
       <div class="field"><label>Emisora</label><select class="select"><option>Todas</option>${DATA.emisoras.map(e => `<option>${e.id} ${esc(e.nombre)}</option>`).join('')}</select></div>
-      <div class="field"><label>Fecha</label><input class="input" type="date" value="2026-09-29"></div>
+      <div class="field"><label>Fecha</label><input class="input" type="date" value="2026-09-30"></div>
     </div>
   </div></div>
   <div class="tabs" style="margin-bottom:16px">
@@ -91,19 +115,25 @@ function renderBitTab() {
 /* ---------- 24. Bitácora de impresión ---------- */
 function screenImpresion() {
   const rows = [
-    { fecha: '29/09/2026 08:15', tipo: 'Recibo', doc: 'Recibo de título nuevo', folio: 'T-103', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
-    { fecha: '28/09/2026 12:05', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5289', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
-    { fecha: '27/09/2026 16:30', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5280', accion: 'Reimpreso', motivo: 'Atasco de impresora', usuario: 'Ana Lucía Robles' },
+    { fecha: '30/09/2026 09:13', tipo: 'Recibo', doc: 'Recibo de título nuevo', folio: 'T-103', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 10:07', tipo: 'Recibo', doc: 'Recibo de canje', folio: 'CJ-93', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 10:07', tipo: 'Recibo', doc: 'Recibo de liquidación', folio: '10144037', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 10:07', tipo: 'Recibo', doc: 'Recibo Hylsamex', folio: 'CJ-93', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 10:07', tipo: 'Recibo', doc: 'Pago de fracción', folio: 'CJ-93', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 10:08', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5290', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 11:20', tipo: 'Recibo', doc: 'Recibo de sustitución', folio: 'T-88', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 12:02', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5285', accion: 'Reimpreso', motivo: 'Atasco de impresora', usuario: 'Ana Lucía Robles' },
+    { fecha: '30/09/2026 12:10', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5291', accion: 'Sustituido', motivo: 'Cheque extraviado (sustituye CH-5285)', usuario: 'Ana Lucía Robles' },
   ];
   const cols = [
     { key: 'fecha', label: 'Fecha y hora' },
     { key: 'tipo', label: 'Tipo' },
     { key: 'doc', label: 'Documento' },
     { key: 'folio', label: 'Folio' },
-    { key: 'accion', label: 'Acción', render: r => r.accion === 'Reimpreso' ? `<span class="badge badge-warning">${esc(r.accion)}</span>` : `<span class="badge">${esc(r.accion)}</span>` },
+    { key: 'accion', label: 'Acción', render: r => r.accion === 'Impreso' ? `<span class="badge">${esc(r.accion)}</span>` : `<span class="badge badge-warning">${esc(r.accion)}</span>` },
     { key: 'motivo', label: 'Motivo' },
     { key: 'usuario', label: 'Usuario' },
   ];
-  return pageHead({ crumbs: ['Seguridad y Auditoría', 'Bitácora de impresión'], title: 'Bitácora de impresión', sub: 'Cheques y recibos impresos y reimpresos, con folio, motivo y usuario.', actions: exportBar('Bitácora de impresión') })
+  return pageHead({ crumbs: ['Seguridad y Auditoría', 'Bitácora de impresión'], title: 'Bitácora de impresión', sub: 'Cheques y recibos impresos, reimpresos y sustituidos, con folio, motivo y usuario.', actions: exportBar('Bitácora de impresión') })
     + dataTable({ cols, rows, filters: true });
 }
