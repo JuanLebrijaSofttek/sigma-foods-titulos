@@ -80,7 +80,7 @@ function modalAltaAccionista() {
         <div class="field"><label>CURP</label><input class="input" placeholder="18 caracteres"></div>
       </div>
       <div class="grid grid-2">
-        <div class="field"><label>Nacionalidad</label><input class="input" value="Mexicana"></div>
+        ${nacionalidadField('Mexicana')}
         <div class="field"><label>País</label><select class="select">${DATA.paises.map(p => `<option>${p}</option>`).join('')}</select></div>
       </div>
       <div class="grid grid-2">
@@ -391,11 +391,52 @@ function toggleSustMulti(v) {
         <tr><td>Título 106 <span class="badge">auto</span></td><td>Estela Garza Villarreal</td><td class="num">12,000</td></tr>
       </tbody></table>`;
 }
+function sustitucionDocSheet() {
+  return pdfSheet({
+    title: 'Recibo de sustitución de títulos',
+    kv: [
+      ['Folio', 'SUS-0012'],
+      ['Fecha', '30/09/2026'],
+      ['Emisión', "TD Cla I Ser 'A' Feb-26"],
+      ['Accionista', 'Estela Garza Villarreal'],
+    ],
+    extra:
+      '<h4 class="pdf-title" style="margin-top:16px">Título anulado</h4>' +
+      '<table><thead><tr><th>Título</th><th>Acciones</th><th>Acción inicial</th><th>Acción final</th></tr></thead><tbody>' +
+      '<tr><td>88</td><td style="text-align:right">' + fmtNum(12000) + '</td><td style="text-align:right">' + fmtNum(5300000001) + '</td><td style="text-align:right">' + fmtNum(5300012000) + '</td></tr>' +
+      '</tbody></table>' +
+      '<h4 class="pdf-title" style="margin-top:16px">Títulos nuevos</h4>' +
+      '<table><thead><tr><th>Título</th><th>Acciones</th><th>Acción inicial</th><th>Acción final</th></tr></thead><tbody>' +
+      '<tr><td>106</td><td style="text-align:right">' + fmtNum(7000) + '</td><td style="text-align:right">' + fmtNum(5300000001) + '</td><td style="text-align:right">' + fmtNum(5300007000) + '</td></tr>' +
+      '<tr><td>107</td><td style="text-align:right">' + fmtNum(5000) + '</td><td style="text-align:right">' + fmtNum(5300007001) + '</td><td style="text-align:right">' + fmtNum(5300012000) + '</td></tr>' +
+      '</tbody></table>' +
+      '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total de acciones</b></span><b>' + fmtNum(12000) + '</b></div>' +
+      '<h4 class="pdf-title" style="margin-top:16px">Motivo de la sustitución</h4>' +
+      '<p style="font-size:12px;color:#444;margin-top:4px">Deterioro del título original</p>',
+    signs: ['Entrega', 'Recibe'],
+  });
+}
+function sustitucionPreview() {
+  openModal(`<div class="modal-head"><h3>Recibo de sustitución · Folio SUS-0012</h3><button class="icon-btn" onclick="closeModal()">${ICON('x')}</button></div>
+    <div class="modal-body"><div class="pdf-scroll">${sustitucionDocSheet()}</div></div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="doPrint('Recibo de sustitución')">${ICON('print')} Imprimir</button></div>`, { size: 'lg' });
+}
 function sustituir() {
   toastBitacora('Sustitución', 'Título 88 anulado · se generaron títulos 106 y 107', 'T-88');
+  // El recibo de sustitución (folio SUS-0012) queda registrado en la Bitácora de impresión.
   document.getElementById('sustResult').innerHTML = `<div class="col gap-3" style="margin-top:8px">
     <div class="alert alert-success">${ICON('checkCircle')} Título 88 anulado. Nuevos títulos: <b>106</b> (7,000) y <b>107</b> (5,000).</div>
-    ${renderDocPanel([{ nombre: 'Recibo de sustitución', meta: 'PDF · Título 88', preview: pdfSheet({ title: 'Recibo de sustitución de título', kv: [['Título anulado', '88'], ['Títulos nuevos', '106, 107'], ['Accionista', 'Estela Garza Villarreal'], ['Acciones', '12,000'], ['Motivo', 'Deterioro del título original']], signs: ['Solicita', 'Autoriza'] }) }])}
+    <div class="doc-panel-single">
+      <div class="doc-list" style="border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden">
+        <div style="padding:8px 12px 6px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">Documentos generados</div>
+        <div class="doc-item active" style="padding:12px 14px">${ICON('file')}<div><div>Recibo de sustitución</div><div class="meta">PDF · Folio SUS-0012</div></div></div>
+        <div class="doc-actions" style="display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border)">
+          <button class="btn btn-secondary btn-sm" onclick="sustitucionPreview()">${ICON('file')} Vista previa</button>
+          <button class="btn btn-primary btn-sm" onclick="doPrint('Recibo de sustitución')">${ICON('print')} Imprimir</button>
+          <button class="btn btn-secondary btn-sm" onclick="doExport('PDF','Recibo de sustitución')">${ICON('download')} Descargar PDF</button>
+        </div>
+      </div>
+    </div>
   </div>`;
 }
 

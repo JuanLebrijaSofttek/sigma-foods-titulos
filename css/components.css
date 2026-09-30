@@ -100,6 +100,11 @@ textarea.input { height: auto; padding: 10px 12px; resize: vertical; line-height
 .select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2355585F' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 34px; }
 .masked-field { display: flex; align-items: center; gap: 8px; }
 .masked-field .val { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+/* ---- Campo nacionalidad (lista con búsqueda) ---- */
+.nac-field { display: flex; flex-direction: column; }
+.nac-input { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2355585F' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 34px; }
+.nac-input::-webkit-calendar-picker-indicator { opacity: 0; }
+.nac-otra.is-hidden { display: none; }
 .reveal-btn { font-size: 12px; font-weight: 600; color: var(--info); padding: 2px 6px; border-radius: 6px; }
 .reveal-btn:hover { background: var(--info-bg); }
 
@@ -183,9 +188,33 @@ table.tbl tfoot td.num { text-align: right; }
 .pdf-sheet table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin: 12px 0; }
 .pdf-sheet table th { text-align: left; border-bottom: 1px solid #ccc; padding: 5px 6px; font-size: 10.5px; text-transform: uppercase; color: #666; }
 .pdf-sheet table td { padding: 5px 6px; border-bottom: 1px solid #eee; font-variant-numeric: tabular-nums; }
+.pdf-sheet table th.num, .pdf-sheet table td.num { text-align: right; }
 .pdf-sheet .pdf-sign { display:flex; justify-content: space-around; margin-top: 40px; gap: 24px; }
 .pdf-sheet .pdf-sign div { text-align: center; border-top: 1px solid #333; padding-top: 6px; flex:1; font-size: 11px; color:#444; }
 .pdf-check { background: #fff; border: 1px solid #999; border-radius: 4px; padding: 20px 24px; max-width: 560px; box-shadow: var(--shadow-sm); font-size:12px; }
+/* ---- Hoja horizontal (reportes anchos) ---- */
+.pdf-sheet--landscape { max-width: 100%; width: 100%; padding: 28px 30px; }
+/* La tabla principal nunca se sale: scroll horizontal dentro de la hoja. */
+.pdf-sheet--landscape .pdf-tbl-scroll { width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; margin: 12px 0; }
+.pdf-sheet--landscape .pdf-tbl-scroll > table { margin: 0; }
+/* Todas las tablas ocupan el 100% del ancho disponible, texto a 12 px. */
+.pdf-sheet--landscape table { width: 100%; font-size: 12px; }
+.pdf-sheet--landscape table th, .pdf-sheet--landscape table td { font-size: 12px; }
+/* Ajuste de línea en columnas de texto (Accionista, Nombre de título, Dirección). */
+.pdf-sheet--landscape table th, .pdf-sheet--landscape table td { white-space: normal; word-break: break-word; overflow-wrap: anywhere; vertical-align: top; }
+.pdf-sheet--landscape table td.num, .pdf-sheet--landscape table th.num { white-space: nowrap; }
+/* Primera columna fija al hacer scroll. */
+.pdf-tbl-sticky th:first-child, .pdf-tbl-sticky td:first-child {
+  position: sticky; left: 0; background: #fff; z-index: 1;
+  box-shadow: 1px 0 0 #e5e5e5;
+}
+.pdf-tbl-sticky thead th:first-child { background: #f7f7f8; }
+/* ---- Fila de filtros por columna dentro de la hoja ---- */
+.pdf-sheet .filter-row th { border-bottom: 1px solid #ccc; padding: 4px 6px; background: #f7f7f8; vertical-align: top; }
+.pdf-sheet .filter-row .col-filter { width: 100%; height: 26px; font-size: 11px; margin: 0; padding: 0 6px; background: #fff; }
+.pdf-sheet .col-filter-range { display: flex; gap: 4px; }
+.pdf-sheet .col-filter-range .col-filter { min-width: 0; }
+.pdf-tbl-sticky .filter-row th:first-child { position: sticky; left: 0; background: #f7f7f8; z-index: 2; }
 
 /* ---- Barra de exportación ---- */
 .export-bar { display: inline-flex; align-items: center; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-md); }

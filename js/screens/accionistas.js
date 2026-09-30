@@ -53,7 +53,7 @@ function modalEditarAccionista(id) {
         <div class="field"><label>CURP</label><input class="input" value="${esc(a.curp)}"></div>
       </div>
       <div class="grid grid-2">
-        <div class="field"><label>Nacionalidad</label><input class="input" value="${esc(a.nacionalidad)}"></div>
+        ${nacionalidadField(a.nacionalidad)}
         <div class="field"><label>País</label><select class="select">${DATA.paises.map(p => `<option ${p === a.pais ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
       </div>
       <div class="grid grid-2">

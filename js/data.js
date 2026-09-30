@@ -122,6 +122,7 @@ const DATA = {
 
   bitacora: [], // se llena dinámicamente + semilla
 
+  nacionalidades: ['Mexicana', 'Estadounidense', 'Canadiense', 'Española', 'Argentina', 'Colombiana', 'Chilena', 'Brasileña', 'Alemana', 'Francesa', 'Británica', 'Italiana', 'Japonesa', 'China', 'Otra'],
   paises: ['México', 'Estados Unidos', 'España', 'Canadá'],
   estados: ['Nuevo León', 'Coahuila', 'Ciudad de México', 'Jalisco', 'Tamaulipas'],
   ciudades: ['Monterrey', 'San Pedro Garza García', 'Saltillo', 'Guadalajara', 'Ciudad de México'],
@@ -140,6 +141,9 @@ DATA.bitacora = [
   { fecha: '15/09/2026 09:00:11', usuario: 'Ana Lucía Robles', emisora: '01 SIGMA FOODS', evento: 'Configuración', detalle: 'Cupón 44 generado', folio: 'C-44' },
   { fecha: '14/09/2026 17:22:11', usuario: 'Ana Lucía Robles', emisora: '01 SIGMA FOODS', evento: 'Cambio de permisos', detalle: 'Rol Reporteador otorgado a Mónica Vela', folio: '—' },
 ];
+
+// Bitácora de impresión — se puede extender dinámicamente (p. ej. recibo de sustitución).
+const IMPRESIONES = [];
 
 // Reglas de cálculo (motor)
 const CALC = {

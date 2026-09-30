@@ -60,8 +60,10 @@ function repParams(id) {
   if (id === 'sabana') {
     return `<div class="field"><label>Emisión</label><select class="select">${emisionesDe().map(e => `<option ${e.vigente ? 'selected' : ''}>${esc(e.nombre)}</option>`).join('')}</select></div>
       <div class="grid grid-2"><div class="field"><label>Cupón</label><input class="input num" value="44"></div><div class="field"><label>Acumulado</label><input class="input num" value="2"></div></div>
-      <label class="switch-row" style="margin-top:2px"><input type="checkbox" id="acumChk"> Acumular dividendos</label>
-      <p class="hint" style="margin-top:-6px">Sin marcar: reporte preliminar, no acumula. Marcada: reporte definitivo, acumula los dividendos.</p>
+      <div class="field acumular-field">
+        <label class="switch-row"><input type="checkbox" id="acumChk"> Acumular dividendos</label>
+        <p class="hint acumular-hint">Sin marcar: reporte preliminar, no acumula. Marcada: reporte definitivo, acumula los dividendos.</p>
+      </div>
       <button class="btn btn-primary btn-block" onclick="toastBitacora('Exportación','Reporte generado: Resumen de pago de dividendos')">${ICON('refresh')} Generar vista previa</button>`;
   }
   if (id === 'reemb') {
@@ -79,12 +81,12 @@ function repParams(id) {
   if (id === 'registro') {
     return `<div class="field"><label>Emisión</label><select class="select"><option selected>TD Cla I Ser 'A' Feb-26</option>${emisionesDe().filter(e => !e.vigente).map(e => `<option>${esc(e.nombre)}</option>`).join('')}</select></div>
       <div class="field"><label>Orden</label><select class="select"><option>Por número de título</option><option>Por accionista</option></select></div>
-      <div class="alert alert-info">${ICON('info')} Filtros por columna disponibles en la tabla ${badgeNew()}</div>
+      <div class="alert alert-info">${ICON('info')} La tabla tiene filtros por columna. "No. de títulos emitidos" y "Total de acciones" se actualizan con los filtros. ${badgeNew()}</div>
       <button class="btn btn-primary btn-block" onclick="toastBitacora('Exportación','Reporte generado: Registro de acciones')">${ICON('refresh')} Generar vista previa</button>`;
   }
   if (id === 'fracciones') {
     return `<div class="grid grid-2"><div class="field"><label>Desde</label><input class="input" value="1996"></div><div class="field"><label>Hasta</label><input class="input" value="2026"></div></div>
-      <div class="alert alert-info">${ICON('info')} Filtros por columna disponibles en la tabla ${badgeNew()}</div>
+      <div class="alert alert-info">${ICON('info')} La tabla tiene filtros por columna. El "Total pagado por fracciones sobrantes" se actualiza con los filtros. ${badgeNew()}</div>
       <button class="btn btn-primary btn-block" onclick="toastBitacora('Exportación','Reporte generado: Fracciones sobrantes')">${ICON('refresh')} Generar vista previa</button>`;
   }
   // canjes
@@ -121,15 +123,16 @@ function repSabana() {
     ['Total de acciones', ...cupones.map(() => fmtNum(total))],
   ];
   const bottom = '<h4 class="pdf-title" style="margin-top:16px">Acciones por cupón</h4>' +
-    '<table><thead><tr><th></th>' + cupones.map(c => '<th>C' + c + '</th>').join('') + '</tr></thead><tbody>' +
-    bottomRows.map(r => '<tr><td><b>' + r[0] + '</b></td>' + r.slice(1).map(v => '<td style="text-align:right">' + v + '</td>').join('') + '</tr>').join('') +
-    '</tbody></table>';
+    '<div class="pdf-tbl-scroll"><table class="pdf-tbl-sticky"><thead><tr><th></th>' + cupones.map(c => '<th class="num">C' + c + '</th>').join('') + '</tr></thead><tbody>' +
+    bottomRows.map(r => '<tr><td><b>' + r[0] + '</b></td>' + r.slice(1).map(v => '<td class="num" style="text-align:right">' + v + '</td>').join('') + '</tr>').join('') +
+    '</tbody></table></div>';
   return pdfSheet({
     title: 'Resumen de pago de dividendos',
     kv: [['Emisión', "TD Cla I Ser 'A' Feb-26"], ['Cupón', '44'], ['Acumulado', '2'], ['Estado', 'Preliminar (sin acumular)']],
-    table: { head, rows },
+    table: { head, rows, nums: [1, 2, 3, 4, 5, 6, 7, 8] },
     extra: bottom,
     signs: ['Solicita', 'Autoriza'],
+    landscape: true, stickyFirst: true,
   });
 }
 
@@ -138,8 +141,9 @@ function repDivMes(tab) {
   if (tab === 'detalle') {
     return pdfSheet({
       title: 'Dividendos pagados durante el mes — Detalle',
+      landscape: true,
       kv: [['Emisora', 'SIGMA FOODS, S.A.B. DE C.V.'], ['Mes', 'Septiembre de 2026']],
-      table: { head: ['No. liquidación', 'No. cheque', 'No. accionista', 'Nombre', 'Acciones', 'Factor', 'Importe'], rows: [
+      table: { head: ['No. liquidación', 'No. cheque', 'No. accionista', 'Nombre', 'Acciones', 'Factor', 'Importe'], nums: [4, 5, 6], rows: [
         ['10144037', 'CH 5290', 'A1', 'Rogelio Treviño Leal', '3,487', fmtFactor(0.325), fmtMoney(1133.28)],
         ['10144001', 'CH 5291', 'A3', 'María Fernanda Salinas Cantú', '5,000', fmtFactor(0.325), fmtMoney(1625.00)],
         ['10144002', 'CH 5292', 'A2', 'Estela Garza Villarreal', '7,000', fmtFactor(0.325), fmtMoney(2275.00)],
@@ -152,6 +156,7 @@ function repDivMes(tab) {
     const tC = meses.reduce((s, m) => s + m[1], 0), tR = meses.reduce((s, m) => s + m[2], 0);
     return pdfSheet({
       title: 'Dividendos pagados — Resumen anual 2026',
+      landscape: true,
       table: { head: ['Mes', 'CUFIN', 'CUFINRE', 'Total'], rows: meses.map(m => [m[0], fmtMoney(m[1]), fmtMoney(m[2]), fmtMoney(m[1] + m[2])]) },
       extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total</b></span><b>' + fmtMoney(tC + tR) + '</b></div>',
     });
@@ -160,6 +165,7 @@ function repDivMes(tab) {
   const tC = dias.reduce((s, d) => s + d[1], 0), tR = dias.reduce((s, d) => s + d[2], 0);
   return pdfSheet({
     title: 'Dividendos pagados durante el mes',
+    landscape: true,
     note: 'SIGMA FOODS, S.A.B. DE C.V. · Dividendos pagados durante el mes · Septiembre de 2026',
     table: { head: ['Día', 'Importe CUFIN', 'Importe CUFINRE'], rows: dias.map(d => [d[0], fmtMoney(d[1]), fmtMoney(d[2])]) },
     extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total dividendo pagado</b></span><b>' + fmtMoney(tC + tR) + '</b></div>',
@@ -181,6 +187,7 @@ function repReemb() {
     '</tbody></table>';
   return pdfSheet({
     title: 'Resumen de pago de reembolsos — Reporte N° 159',
+    landscape: true,
     kv: [['Emisión', "TD Cla I Ser 'A' Feb-04"], ['Cupón', '19'], ['Acumulado consecutivo', '159']],
     table: { head: ['No. de reembolso', 'Accionista', 'Importe cupón 19', 'Total por accionista'], rows },
     extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total del periodo</b></span><b>' + fmtMoney(7290.00) + '</b></div>' + bottom,
@@ -195,6 +202,7 @@ function repReembMes(tab) {
     const tot = meses.reduce((s, m) => s + m[1], 0);
     return pdfSheet({
       title: 'Reembolsos pagados — Resumen anual 2026',
+      landscape: true,
       table: { head: ['Mes', 'Importe'], rows: meses.map(m => [m[0], fmtMoney(m[1])]) },
       extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total</b></span><b>' + fmtMoney(tot) + '</b></div>',
     });
@@ -203,6 +211,7 @@ function repReembMes(tab) {
   const tot = dias.reduce((s, d) => s + d[1], 0);
   return pdfSheet({
     title: 'Reembolsos pagados durante el mes de septiembre de 2026',
+    landscape: true,
     note: 'SIGMA FOODS, S.A.B. DE C.V. · Reembolsos pagados durante el mes de septiembre de 2026',
     table: { head: ['Día', 'Importe'], rows: dias.map(d => [d[0], fmtMoney(d[1])]) },
     extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total del mes</b></span><b>' + fmtMoney(tot) + '</b></div>',
@@ -210,48 +219,228 @@ function repReembMes(tab) {
 }
 
 /* e. Registro de acciones — solo títulos de Feb-26 */
-function repRegistro() {
+// Estado de filtros por columna (Cambio 4)
+let _regFiltros = { nombre: '', rfc: '', dir: '', fIni: '', fFin: '', accIni: '', accFin: '', aiIni: '', aiFin: '', afIni: '', afFin: '', cupon: '' };
+function _regDatos() {
   const ts = DATA.titulos.filter(t => t.emision === 'e5' && t.estatus !== 'Anulado');
   const byId = id => DATA.accionistas.find(x => x.id === id);
-  const rows = ts.map(t => {
+  return ts.map(t => {
     const ac = byId(t.accionista);
-    return [t.fecha.split('-').reverse().join('/'), String(t.ultimoCupon), 'Título ' + t.num, 'Título nominativo ' + t.num, ac.rfc.slice(0, 4) + '••••••' + ac.rfc.slice(-2), esc(ac.domicilio), fmtNum(t.acciones), fmtNum(t.accIni), fmtNum(t.accFin)];
+    return {
+      num: t.num,
+      noTitulo: 'Título ' + t.num,
+      fecha: t.fecha, // ISO para comparar
+      fechaTxt: t.fecha.split('-').reverse().join('/'),
+      ultimoCupon: t.ultimoCupon,
+      nombre: 'Título nominativo ' + t.num,
+      rfc: ac.rfc,
+      rfcMask: ac.rfc.slice(0, 4) + '••••••' + ac.rfc.slice(-2),
+      dir: ac.domicilio,
+      acciones: t.acciones,
+      accIni: t.accIni,
+      accFin: t.accFin,
+    };
   });
-  const totAcc = ts.reduce((s, t) => s + t.acciones, 0);
-  return pdfSheet({
-    title: 'Registro de acciones',
-    note: "SIGMA FOODS, S.A.B. DE C.V. · Emisión TD Cla I Ser 'A' Feb-26. Conforme al Art. 8 de los estatutos y Art. 128 de la LGSM.",
-    table: { head: ['Fecha inicio', 'Último cupón', 'No. título', 'Nombre de título', 'RFC', 'Dirección', 'Acciones', 'Acción inicial', 'Acción final'], rows },
-    extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>No. de títulos emitidos: ' + ts.length + '</b></span><b>Total de acciones: ' + fmtNum(totAcc) + '</b></div>',
+}
+function _regFiltrados() {
+  const f = _regFiltros;
+  const inRange = (val, lo, hi) => {
+    if (lo !== '' && val < Number(lo)) return false;
+    if (hi !== '' && val > Number(hi)) return false;
+    return true;
+  };
+  const inDateRange = (iso, lo, hi) => {
+    if (lo && iso < lo) return false;
+    if (hi && iso > hi) return false;
+    return true;
+  };
+  return _regDatos().filter(r => {
+    if (f.nombre && !r.nombre.toLowerCase().includes(f.nombre.toLowerCase())) return false;
+    if (f.rfc && !r.rfc.toLowerCase().includes(f.rfc.toLowerCase())) return false;
+    if (f.dir && !r.dir.toLowerCase().includes(f.dir.toLowerCase())) return false;
+    if (!inDateRange(r.fecha, f.fIni, f.fFin)) return false;
+    if (!inRange(r.acciones, f.accIni, f.accFin)) return false;
+    if (!inRange(r.accIni, f.aiIni, f.aiFin)) return false;
+    if (!inRange(r.accFin, f.afIni, f.afFin)) return false;
+    if (f.cupon && String(r.ultimoCupon) !== f.cupon) return false;
+    return true;
   });
+}
+function repRegistro() {
+  const rows = _regFiltrados();
+  const totAcc = rows.reduce((s, r) => s + r.acciones, 0);
+  const cuponesOpts = [...new Set(_regDatos().map(r => r.ultimoCupon))].sort((a, b) => a - b);
+  // Encabezados
+  const head = ['No. título', 'Fecha inicio', 'Último cupón', 'Nombre de título', 'RFC', 'Dirección', 'Acciones', 'Acción inicial', 'Acción final'];
+  const headHtml = head.map((hh, i) => `<th class="${[2, 6, 7, 8].includes(i) ? 'num' : ''}">${esc(hh)}</th>`).join('');
+  const txtF = (key, ph) => `<input class="col-filter" placeholder="${ph}" value="${esc(_regFiltros[key])}" oninput="setRegFiltro('${key}',this.value)" onclick="event.stopPropagation()">`;
+  const rangeF = (kLo, kHi, type = 'number') => `<div class="col-filter-range"><input class="col-filter" type="${type}" placeholder="Desde" value="${esc(_regFiltros[kLo])}" oninput="setRegFiltro('${kLo}',this.value)"><input class="col-filter" type="${type}" placeholder="Hasta" value="${esc(_regFiltros[kHi])}" oninput="setRegFiltro('${kHi}',this.value)"></div>`;
+  const selF = `<select class="col-filter" onchange="setRegFiltro('cupon',this.value)"><option value="">Todos</option>${cuponesOpts.map(c => `<option value="${c}" ${_regFiltros.cupon === String(c) ? 'selected' : ''}>${c}</option>`).join('')}</select>`;
+  const filterRow = `<tr class="filter-row">
+    <th></th>
+    <th>${rangeF('fIni', 'fFin', 'date')}</th>
+    <th>${selF}</th>
+    <th>${txtF('nombre', 'Nombre…')}</th>
+    <th>${txtF('rfc', 'RFC…')}</th>
+    <th>${txtF('dir', 'Dirección…')}</th>
+    <th>${rangeF('accIni', 'accFin')}</th>
+    <th>${rangeF('aiIni', 'aiFin')}</th>
+    <th>${rangeF('afIni', 'afFin')}</th>
+  </tr>`;
+  const bodyRows = _regBodyHtml(rows);
+  const tableHtml = `<div class="pdf-tbl-scroll"><table class="pdf-tbl-sticky">
+      <thead><tr>${headHtml}</tr>${filterRow}</thead>
+      <tbody>${bodyRows}</tbody>
+    </table></div>`;
+  const totales = `<div class="reg-totales" style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>No. de títulos emitidos: ${rows.length}</b></span><b>Total de acciones: ${fmtNum(totAcc)}</b></div>`;
+  const limpiar = `<div class="row between" style="margin-bottom:10px;align-items:center"><span class="tiny muted">Filtros por columna</span><button class="btn btn-secondary btn-sm" onclick="limpiarRegFiltros()">${ICON('x')} Limpiar filtros</button></div>`;
+  return `<div class="pdf-sheet pdf-sheet--landscape" id="regSheet">
+    <div class="pdf-brand"><span class="co">SIGMA FOODS, S.A.B. DE C.V.</span>${SIGMA_LOGO(24)}</div>
+    <h4 class="pdf-title">Registro de acciones</h4>
+    ${limpiar}
+    ${tableHtml}
+    ${totales}
+    <p style="font-size:11px;color:#666;margin-top:12px">SIGMA FOODS, S.A.B. DE C.V. · Emisión TD Cla I Ser 'A' Feb-26. Conforme al Art. 8 de los estatutos y Art. 128 de la LGSM.</p>
+  </div>`;
+}
+function _regBodyHtml(rows) {
+  const bodyRows = rows.map(r => `<tr>
+    <td>${esc(r.noTitulo)}</td>
+    <td class="num">${esc(r.fechaTxt)}</td>
+    <td class="num">${r.ultimoCupon}</td>
+    <td>${esc(r.nombre)}</td>
+    <td>${esc(r.rfcMask)}</td>
+    <td>${esc(r.dir)}</td>
+    <td class="num">${fmtNum(r.acciones)}</td>
+    <td class="num">${fmtNum(r.accIni)}</td>
+    <td class="num">${fmtNum(r.accFin)}</td>
+  </tr>`).join('');
+  const emptyRow = rows.length ? '' : `<tr><td colspan="9" style="text-align:center;color:#888;padding:14px">Sin resultados para los filtros aplicados.</td></tr>`;
+  return bodyRows + emptyRow;
+}
+function setRegFiltro(key, val) {
+  _regFiltros[key] = val;
+  _regRefresh();
+}
+function _regRefresh() {
+  const sheet = document.getElementById('regSheet');
+  if (!sheet) return;
+  const rows = _regFiltrados();
+  const totAcc = rows.reduce((s, r) => s + r.acciones, 0);
+  const tbody = sheet.querySelector('.pdf-tbl-sticky tbody');
+  if (tbody) tbody.innerHTML = _regBodyHtml(rows);
+  const tot = sheet.querySelector('.reg-totales');
+  if (tot) tot.innerHTML = `<span><b>No. de títulos emitidos: ${rows.length}</b></span><b>Total de acciones: ${fmtNum(totAcc)}</b>`;
+}
+function limpiarRegFiltros() {
+  _regFiltros = { nombre: '', rfc: '', dir: '', fIni: '', fFin: '', accIni: '', accFin: '', aiIni: '', aiFin: '', afIni: '', afFin: '', cupon: '' };
+  const sheet = document.getElementById('regSheet');
+  if (sheet) sheet.outerHTML = repRegistro();
 }
 
 /* f. Fracciones sobrantes */
+const _fracDatos = [
+  { emision: "TD Cla I Ser 'A' Feb-26", canje: 93, fecha: '2026-09-30', fechaTxt: '30/09/2026', accionista: 'Rogelio Treviño Leal', fraccion: 0.50, importe: 6.50 },
+  { emision: "TD Cla I Ser 'A' Jun-25", canje: 88, fecha: '2025-09-18', fechaTxt: '18/09/2025', accionista: 'Estela Garza Villarreal', fraccion: 0.25, importe: 3.25 },
+];
+let _fracFiltros = { emision: '', accionista: '', canjeIni: '', canjeFin: '', fIni: '', fFin: '', fracIni: '', fracFin: '', impIni: '', impFin: '' };
+function _fracFiltrados() {
+  const f = _fracFiltros;
+  const inRange = (val, lo, hi) => {
+    if (lo !== '' && val < Number(lo)) return false;
+    if (hi !== '' && val > Number(hi)) return false;
+    return true;
+  };
+  const inDateRange = (iso, lo, hi) => {
+    if (lo && iso < lo) return false;
+    if (hi && iso > hi) return false;
+    return true;
+  };
+  return _fracDatos.filter(r => {
+    if (f.emision && r.emision !== f.emision) return false;
+    if (f.accionista && !r.accionista.toLowerCase().includes(f.accionista.toLowerCase())) return false;
+    if (!inRange(r.canje, f.canjeIni, f.canjeFin)) return false;
+    if (!inDateRange(r.fecha, f.fIni, f.fFin)) return false;
+    if (!inRange(r.fraccion, f.fracIni, f.fracFin)) return false;
+    if (!inRange(r.importe, f.impIni, f.impFin)) return false;
+    return true;
+  });
+}
+function _fracBodyHtml(rows) {
+  const body = rows.map(r => `<tr>
+    <td>${esc(r.emision)}</td>
+    <td class="num">${r.canje}</td>
+    <td class="num">${esc(r.fechaTxt)}</td>
+    <td>${esc(r.accionista)}</td>
+    <td class="num">${fmtNum(r.fraccion, 2)}</td>
+    <td class="num">${fmtMoney(r.importe)}</td>
+  </tr>`).join('');
+  const empty = rows.length ? '' : `<tr><td colspan="6" style="text-align:center;color:#888;padding:14px">Sin resultados para los filtros aplicados.</td></tr>`;
+  return body + empty;
+}
 function repFracciones(tab) {
   if (tab === 'arqueo') {
-    return pdfSheet({ title: 'Arqueo de fracciones sobrantes', table: { head: ['Concepto', 'Importe'], rows: [['Saldo inicial', fmtMoney(1240.00)], ['Solicitudes de efectivo', '- ' + fmtMoney(320.50)], ['Compras', '+ ' + fmtMoney(150.00)], ['Saldo caja', fmtMoney(1069.50)]] } });
+    return pdfSheet({ title: 'Arqueo de fracciones sobrantes', table: { head: ['Concepto', 'Importe'], rows: [['Saldo inicial', fmtMoney(1240.00)], ['Solicitudes de efectivo', '- ' + fmtMoney(320.50)], ['Compras', '+ ' + fmtMoney(150.00)], ['Saldo caja', fmtMoney(1069.50)]], nums: [1] }, landscape: true });
   }
-  return pdfSheet({
-    title: 'Fracciones sobrantes (desde 1996)',
-    table: { head: ['Emisión vigente', 'No. de canje', 'Fecha de operación', 'Accionista', 'Fracción sobrante', 'Importe'], rows: [
-      ["TD Cla I Ser 'A' Feb-26", '93', '30/09/2026', 'Rogelio Treviño Leal', '0.50', fmtMoney(6.50)],
-      ["TD Cla I Ser 'A' Jun-25", '88', '18/09/2025', 'Estela Garza Villarreal', '0.25', fmtMoney(3.25)],
-    ] },
-    extra: '<div style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total pagado por fracciones sobrantes</b></span><b>' + fmtMoney(9.75) + '</b></div>',
-  });
+  const rows = _fracFiltrados();
+  const totPagado = rows.reduce((s, r) => s + r.importe, 0);
+  const emisionesOpts = [...new Set(_fracDatos.map(r => r.emision))];
+  const head = ['Emisión vigente', 'No. de canje', 'Fecha de operación', 'Accionista', 'Fracción sobrante', 'Importe'];
+  const headHtml = head.map((hh, i) => `<th class="${[1, 4, 5].includes(i) ? 'num' : ''}">${esc(hh)}</th>`).join('');
+  const txtF = (key, ph) => `<input class="col-filter" placeholder="${ph}" value="${esc(_fracFiltros[key])}" oninput="setFracFiltro('${key}',this.value)" onclick="event.stopPropagation()">`;
+  const rangeF = (kLo, kHi, type = 'number', step = '') => `<div class="col-filter-range"><input class="col-filter" type="${type}" ${step ? `step="${step}"` : ''} placeholder="Desde" value="${esc(_fracFiltros[kLo])}" oninput="setFracFiltro('${kLo}',this.value)"><input class="col-filter" type="${type}" ${step ? `step="${step}"` : ''} placeholder="Hasta" value="${esc(_fracFiltros[kHi])}" oninput="setFracFiltro('${kHi}',this.value)"></div>`;
+  const selF = `<select class="col-filter" onchange="setFracFiltro('emision',this.value)"><option value="">Todas</option>${emisionesOpts.map(e => `<option value="${esc(e)}" ${_fracFiltros.emision === e ? 'selected' : ''}>${esc(e)}</option>`).join('')}</select>`;
+  const filterRow = `<tr class="filter-row">
+    <th>${selF}</th>
+    <th>${rangeF('canjeIni', 'canjeFin')}</th>
+    <th>${rangeF('fIni', 'fFin', 'date')}</th>
+    <th>${txtF('accionista', 'Accionista…')}</th>
+    <th>${rangeF('fracIni', 'fracFin', 'number', '0.01')}</th>
+    <th>${rangeF('impIni', 'impFin', 'number', '0.01')}</th>
+  </tr>`;
+  const tableHtml = `<div class="pdf-tbl-scroll"><table class="pdf-tbl-sticky">
+      <thead><tr>${headHtml}</tr>${filterRow}</thead>
+      <tbody>${_fracBodyHtml(rows)}</tbody>
+    </table></div>`;
+  const totales = `<div class="frac-totales" style="display:flex;justify-content:space-between;border-top:1px solid #333;padding-top:6px;margin-top:6px"><span><b>Total pagado por fracciones sobrantes</b></span><b>${fmtMoney(totPagado)}</b></div>`;
+  const limpiar = `<div class="row between" style="margin-bottom:10px;align-items:center"><span class="tiny muted">Filtros por columna</span><button class="btn btn-secondary btn-sm" onclick="limpiarFracFiltros()">${ICON('x')} Limpiar filtros</button></div>`;
+  return `<div class="pdf-sheet pdf-sheet--landscape" id="fracSheet">
+    <div class="pdf-brand"><span class="co">SIGMA FOODS, S.A.B. DE C.V.</span>${SIGMA_LOGO(24)}</div>
+    <h4 class="pdf-title">Fracciones sobrantes (desde 1996)</h4>
+    ${limpiar}
+    ${tableHtml}
+    ${totales}
+  </div>`;
+}
+function setFracFiltro(key, val) {
+  _fracFiltros[key] = val;
+  const sheet = document.getElementById('fracSheet');
+  if (!sheet) return;
+  const rows = _fracFiltrados();
+  const totPagado = rows.reduce((s, r) => s + r.importe, 0);
+  const tbody = sheet.querySelector('.pdf-tbl-sticky tbody');
+  if (tbody) tbody.innerHTML = _fracBodyHtml(rows);
+  const tot = sheet.querySelector('.frac-totales');
+  if (tot) tot.innerHTML = `<span><b>Total pagado por fracciones sobrantes</b></span><b>${fmtMoney(totPagado)}</b>`;
+}
+function limpiarFracFiltros() {
+  _fracFiltros = { emision: '', accionista: '', canjeIni: '', canjeFin: '', fIni: '', fFin: '', fracIni: '', fracFin: '', impIni: '', impFin: '' };
+  const sheet = document.getElementById('fracSheet');
+  if (sheet) sheet.outerHTML = repFracciones('principal');
 }
 
 /* g. Canjes mensuales */
 function repCanjes(tab) {
   if (tab === 'concil') {
-    return pdfSheet({ title: 'Conciliación de canjes del mes — Septiembre 2026', table: { head: ['Concepto', 'Acciones'], rows: [['Acciones anteriores (título entrante)', fmtNum(2450)], ['Acciones nuevas (títulos generados)', fmtNum(3487)], ['Títulos generados', '2'], ['Diferencia de acciones', fmtNum(1037) + ' (split + cert. provisional)']] } });
+    return pdfSheet({ title: 'Conciliación de canjes del mes — Septiembre 2026', landscape: true, table: { head: ['Concepto', 'Acciones'], rows: [['Acciones anteriores (título entrante)', fmtNum(2450)], ['Acciones nuevas (títulos generados)', fmtNum(3487)], ['Títulos generados', '2'], ['Diferencia de acciones', fmtNum(1037) + ' (split + cert. provisional)']], nums: [1] } });
   }
   if (tab === 'poracc') {
-    return pdfSheet({ title: 'Canjes por accionista del mes — Septiembre 2026', table: { head: ['Accionista', 'Canjes', 'Acciones anteriores', 'Acciones nuevas'], rows: [['Rogelio Treviño Leal', '1', fmtNum(2450), fmtNum(3487)]] } });
+    return pdfSheet({ title: 'Canjes por accionista del mes — Septiembre 2026', landscape: true, table: { head: ['Accionista', 'Canjes', 'Acciones anteriores', 'Acciones nuevas'], rows: [['Rogelio Treviño Leal', '1', fmtNum(2450), fmtNum(3487)]], nums: [1, 2, 3] } });
   }
   return pdfSheet({
     title: 'Canjes mensuales — Septiembre 2026',
-    table: { head: ['Emisión actual', 'No. canje', 'Fecha', 'Emisión anterior', 'No. título', 'Acc. anteriores', 'Acc. nuevas', 'Fracción', 'Pago fracción'], rows: [
+    landscape: true,
+    table: { head: ['Emisión actual', 'No. canje', 'Fecha', 'Emisión anterior', 'No. título', 'Acc. anteriores', 'Acc. nuevas', 'Fracción', 'Pago fracción'], nums: [1, 4, 5, 6, 7, 8], rows: [
       ['TD A Feb-26', '93', '30/09/2026', 'TD A Jun-96', '17', fmtNum(2450), fmtNum(3487), '0.50', fmtMoney(6.50)],
     ] },
     extra: '<h4 class="pdf-title" style="margin-top:16px">Resumen de acciones canjeadas</h4>' +

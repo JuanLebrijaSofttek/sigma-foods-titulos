@@ -121,10 +121,10 @@ function screenImpresion() {
     { fecha: '30/09/2026 10:07', tipo: 'Recibo', doc: 'Recibo Hylsamex', folio: 'CJ-93', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
     { fecha: '30/09/2026 10:07', tipo: 'Recibo', doc: 'Pago de fracción', folio: 'CJ-93', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
     { fecha: '30/09/2026 10:08', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5290', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
-    { fecha: '30/09/2026 11:20', tipo: 'Recibo', doc: 'Recibo de sustitución', folio: 'T-88', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
+    { fecha: '30/09/2026 11:20', tipo: 'Recibo', doc: 'Recibo de sustitución', folio: 'SUS-0012', accion: 'Impreso', motivo: '—', usuario: 'Carlos Menéndez' },
     { fecha: '30/09/2026 12:02', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5285', accion: 'Reimpreso', motivo: 'Atasco de impresora', usuario: 'Ana Lucía Robles' },
     { fecha: '30/09/2026 12:10', tipo: 'Cheque', doc: 'Cheque', folio: 'CH-5291', accion: 'Sustituido', motivo: 'Cheque extraviado (sustituye CH-5285)', usuario: 'Ana Lucía Robles' },
-  ];
+  ].concat(IMPRESIONES);
   const cols = [
     { key: 'fecha', label: 'Fecha y hora' },
     { key: 'tipo', label: 'Tipo' },

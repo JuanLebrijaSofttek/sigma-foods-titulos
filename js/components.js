@@ -46,6 +46,33 @@ function badgeActual() { return `<span class="badge badge-actual">${ICON('file')
 // Alias de compatibilidad: badgeParity ahora rinde "Formato actual".
 function badgeParity() { return badgeActual(); }
 
+// ---- Campo de nacionalidad (lista con búsqueda + "Otra") ----
+// Dropdown con búsqueda (input + datalist). Si se elige "Otra",
+// aparece un campo de texto para especificarla.
+function nacionalidadField(value = 'Mexicana') {
+  const uid = 'nac_' + Math.random().toString(36).slice(2, 8);
+  const lista = DATA.nacionalidades;
+  const esConocida = lista.includes(value);
+  // Si el valor guardado no está en la lista (texto libre previo), se trata como "Otra".
+  const seleccion = esConocida ? value : 'Otra';
+  const otraValor = esConocida ? '' : value;
+  const mostrarOtra = seleccion === 'Otra';
+  return `<div class="nac-field">
+      <div class="field"><label>Nacionalidad</label>
+        <input class="input nac-input" list="${uid}_list" id="${uid}_sel" value="${esc(seleccion)}" placeholder="Buscar nacionalidad…" autocomplete="off" oninput="nacionalidadChange('${uid}')">
+        <datalist id="${uid}_list">${lista.map(n => `<option value="${esc(n)}"></option>`).join('')}</datalist>
+      </div>
+      <div class="field nac-otra ${mostrarOtra ? '' : 'is-hidden'}" id="${uid}_otraWrap" style="margin-top:10px"><label>Especifica la nacionalidad</label>
+        <input class="input" id="${uid}_otra" value="${esc(otraValor)}" placeholder="Escribe la nacionalidad"></div>
+    </div>`;
+}
+function nacionalidadChange(uid) {
+  const sel = document.getElementById(uid + '_sel');
+  const wrap = document.getElementById(uid + '_otraWrap');
+  if (!sel || !wrap) return;
+  wrap.classList.toggle('is-hidden', sel.value.trim().toLowerCase() !== 'otra');
+}
+
 // ---- Campo enmascarado ----
 function maskedField(value, kind = 'rfc') {
   const id = 'mask_' + Math.random().toString(36).slice(2, 8);
@@ -129,15 +156,20 @@ function selectDoc(el, i) {
 }
 
 // ---- Hoja PDF (documento) ----
-function pdfSheet({ title, kv = [], table = null, note = '', signs = null, extra = '' }) {
+// landscape: usa hoja horizontal que nunca excede el contenedor; el scroll
+// horizontal de la tabla ocurre dentro de la hoja (no en la página).
+// stickyFirst: fija la primera columna de la tabla principal al hacer scroll.
+function pdfSheet({ title, kv = [], table = null, note = '', signs = null, extra = '', landscape = false, stickyFirst = false }) {
   const kvHtml = kv.length ? `<dl class="pdf-kv">${kv.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('')}</dl>` : '';
   let tableHtml = '';
   if (table) {
-    tableHtml = `<table><thead><tr>${table.head.map(hh => `<th>${esc(hh)}</th>`).join('')}</tr></thead>
-      <tbody>${table.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    const nums = table.nums || [];
+    const inner = `<table class="${stickyFirst ? 'pdf-tbl-sticky' : ''}"><thead><tr>${table.head.map((hh, ci) => `<th class="${nums.includes(ci) ? 'num' : ''}">${esc(hh)}</th>`).join('')}</tr></thead>
+      <tbody>${table.rows.map(r => `<tr>${r.map((c, ci) => `<td class="${nums.includes(ci) ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    tableHtml = landscape ? `<div class="pdf-tbl-scroll">${inner}</div>` : inner;
   }
   const signsHtml = signs ? `<div class="pdf-sign">${signs.map(s => `<div>${esc(s)}</div>`).join('')}</div>` : '';
-  return `<div class="pdf-sheet">
+  return `<div class="pdf-sheet ${landscape ? 'pdf-sheet--landscape' : ''}">
     <div class="pdf-brand"><span class="co">SIGMA FOODS, S.A.B. DE C.V.</span>${SIGMA_LOGO(24)}</div>
     <h4 class="pdf-title">${esc(title)}</h4>
     ${kvHtml}${tableHtml}${extra}
