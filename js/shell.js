@@ -115,10 +115,53 @@ function toggleGroup(el) {
   const sub = el.nextElementSibling;
   sub.classList.toggle('open');
 }
+// Punto de corte móvil (debe coincidir con el media query de layout.css)
+function isMobileViewport() { return window.matchMedia('(max-width: 900px)').matches; }
+
 function toggleSidebar() {
+  if (isMobileViewport()) {
+    // En móvil el menú funciona como cajón deslizable (drawer) con backdrop.
+    const sb = document.getElementById('sidebar');
+    const willOpen = !sb.classList.contains('mobile-open');
+    sb.classList.toggle('mobile-open', willOpen);
+    toggleSidebarBackdrop(willOpen);
+    return;
+  }
+  // En escritorio se mantiene el colapso de ancho original.
   STATE.sidebarCollapsed = !STATE.sidebarCollapsed;
   document.getElementById('sidebar').classList.toggle('collapsed');
 }
+
+function closeMobileSidebar() {
+  const sb = document.getElementById('sidebar');
+  if (sb) sb.classList.remove('mobile-open');
+  toggleSidebarBackdrop(false);
+}
+
+function toggleSidebarBackdrop(show) {
+  let bd = document.getElementById('sidebar-backdrop');
+  if (show) {
+    if (!bd) {
+      bd = document.createElement('div');
+      bd.id = 'sidebar-backdrop';
+      bd.className = 'sidebar-backdrop';
+      bd.addEventListener('click', closeMobileSidebar);
+      document.body.appendChild(bd);
+    }
+    // forzar reflow para que la transición de opacidad corra
+    requestAnimationFrame(() => bd.classList.add('show'));
+  } else if (bd) {
+    bd.classList.remove('show');
+    bd.addEventListener('transitionend', () => bd.remove(), { once: true });
+    // respaldo por si no hay transición (reduced-motion)
+    setTimeout(() => bd && bd.remove(), 250);
+  }
+}
+
+// Si se agranda la ventana a escritorio, cerrar el cajón móvil y su backdrop.
+window.addEventListener('resize', () => {
+  if (!isMobileViewport()) closeMobileSidebar();
+});
 
 function renderHeader() {
   const em = emisoraById(STATE.emisoraActual);

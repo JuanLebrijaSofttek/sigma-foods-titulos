@@ -127,9 +127,27 @@
 @media (max-width: 900px) {
   .sidebar { position: fixed; z-index: 500; transform: translateX(-100%); box-shadow: var(--shadow-lg); }
   .sidebar.mobile-open { transform: none; }
+  /* En móvil el cajón siempre se muestra completo, aunque STATE lo marque colapsado. */
+  .sidebar.collapsed { width: var(--sidebar-w); }
+  .sidebar.collapsed .brand-txt,
+  .sidebar.collapsed .nav-item .label,
+  .sidebar.collapsed .nav-item .chev,
+  .sidebar.collapsed .nav-item .nav-badge,
+  .sidebar.collapsed .collapse-btn .label { display: inline; }
+  .sidebar.collapsed .nav-group-title { opacity: 1; height: auto; padding: 14px 10px 6px; }
+  .sidebar.collapsed .nav-sub { display: block; }
+  /* Backdrop del cajón móvil */
+  .sidebar-backdrop {
+    position: fixed; inset: 0; z-index: 400; background: rgba(16,18,22,0.42);
+    opacity: 0; transition: opacity var(--t);
+  }
+  .sidebar-backdrop.show { opacity: 1; }
   .content-inner { padding: 22px 20px 48px; }
   .header { padding: 0 14px; gap: 10px; }
   .header-search { display: none; }
+  /* La selección de emisora se encoge para dejar espacio al avatar y al badge. */
+  .emisora-selector { min-width: 0; flex: 1 1 auto; overflow: hidden; }
+  .emisora-selector .es-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .avatar-btn .u-name, .avatar-btn .u-role, .avatar-btn .chev { display: none; }
   .grid-3, .grid-2, .grid-5, .grid-4 { grid-template-columns: 1fr; }
   .doc-panel { grid-template-columns: 1fr; }

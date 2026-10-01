@@ -36,7 +36,11 @@ const ROUTES = {
 let _currentRoute = 'inicio';
 function currentRoute() { return _currentRoute; }
 
-function go(route) { location.hash = '#/' + route; }
+function go(route) {
+  // Cerrar el cajón móvil al navegar (si existe la función del shell).
+  if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
+  location.hash = '#/' + route;
+}
 
 function parseHash() {
   const raw = location.hash.replace(/^#\/?/, '') || (STATE.autenticado ? 'inicio' : 'login');

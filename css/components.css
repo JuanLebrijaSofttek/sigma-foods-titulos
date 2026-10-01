@@ -313,3 +313,39 @@ table.tbl tfoot td.num { text-align: right; }
 .progress { height: 8px; background: #EEF0F3; border-radius: 999px; overflow: hidden; }
 .progress .bar { height: 100%; background: var(--success); border-radius: 999px; transition: width 400ms ease; }
 .progress .bar.red { background: var(--sigma-red); }
+
+/* ============================================================
+   Ajustes responsive (móvil / tablet)
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Tablas: permitir scroll horizontal en lugar de romper el layout.
+     El contenedor deja de recortar y la tabla conserva un ancho mínimo cómodo.
+     Las tablas del componente compartido van en .table-wrap > .tbl-scroll > table. */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-wrap table.tbl { min-width: 640px; }
+  .tbl-scroll { max-height: none; }
+
+  /* Barras de herramientas de tabla y encabezados de página se apilan. */
+  .tbl-toolbar { gap: 8px; }
+  .page-head { flex-direction: column; align-items: stretch; }
+  .page-actions { flex-wrap: wrap; }
+
+  /* La hoja PDF ocupa el ancho disponible con menos relleno. */
+  .pdf-sheet { padding: 24px 20px; }
+  .pdf-sheet .pdf-sign { flex-direction: column; gap: 32px; }
+
+  /* Pasos del wizard: envolver para que no desborden. */
+  .stepper { flex-wrap: wrap; gap: 8px 0; }
+
+  /* Modales a pantalla casi completa en móvil. */
+  .overlay-bg { padding: 12px; }
+  .modal, .modal.lg { max-width: 100%; }
+
+  /* El desglose de cálculo no necesita cambios, pero evitamos textos pegados. */
+  .calc-row { gap: 10px; }
+
+  /* Toasts ocupan el ancho con márgenes seguros. */
+  .toast-layer { left: 12px; right: 12px; bottom: 12px; }
+  .toast { min-width: 0; max-width: none; width: 100%; }
+}
