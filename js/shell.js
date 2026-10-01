@@ -35,7 +35,6 @@ const NAV = [
       { label: 'Emisiones', route: 'config/emisiones' },
       { label: 'Cupones y eventos corporativos', route: 'config/cupones' },
       { label: 'Parámetros de emisora', route: 'config/parametros' },
-      { label: 'Plantillas de impresión', route: 'config/plantillas' },
       { label: 'Catálogos geográficos', route: 'config/catalogos' },
     ]
   },
@@ -49,7 +48,6 @@ const NAV = [
     ]
   },
   { id: 'migracion', label: 'Migración de datos', icon: 'database', route: 'migracion' },
-  { id: 'dashboard', label: 'Dashboard ejecutivo', icon: 'dashboard', route: 'dashboard' },
 ];
 
 function renderShell(activeRoute) {

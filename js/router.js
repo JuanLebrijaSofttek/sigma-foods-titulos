@@ -22,7 +22,6 @@ const ROUTES = {
   'config/emisiones': () => screenEmisiones(),
   'config/cupones': () => screenCupones(),
   'config/parametros': () => screenParametros(),
-  'config/plantillas': () => screenPlantillas(),
   'config/catalogos': () => screenCatalogos(),
   'seguridad/usuarios': () => screenUsuarios(),
   'seguridad/tenants': () => screenTenants(),
@@ -30,7 +29,6 @@ const ROUTES = {
   'seguridad/auditoria': () => screenAuditoria(),
   'seguridad/impresion': () => screenImpresion(),
   'migracion': () => screenMigracion(),
-  'dashboard': () => screenDashboard(),
 };
 
 let _currentRoute = 'inicio';
