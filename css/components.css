@@ -201,7 +201,12 @@ table.tbl tfoot td.num { text-align: right; }
 .pdf-sheet--landscape table { width: 100%; font-size: 12px; }
 .pdf-sheet--landscape table th, .pdf-sheet--landscape table td { font-size: 12px; }
 /* Ajuste de línea en columnas de texto (Accionista, Nombre de título, Dirección). */
-.pdf-sheet--landscape table th, .pdf-sheet--landscape table td { white-space: normal; word-break: break-word; overflow-wrap: anywhere; vertical-align: top; }
+.pdf-sheet--landscape table th, .pdf-sheet--landscape table td { white-space: normal; word-break: normal; overflow-wrap: anywhere; vertical-align: top; }
+/* Los encabezados nunca se parten a media palabra (evita "TÍT / UL / O"). */
+.pdf-sheet--landscape table thead th { overflow-wrap: break-word; word-break: keep-all; hyphens: none; }
+/* Ancho mínimo por columna para que el contenido respire; el scroll horizontal del contenedor evita que se salga de la hoja. */
+.pdf-tbl-sticky th, .pdf-tbl-sticky td { min-width: 90px; }
+.pdf-tbl-sticky th:first-child, .pdf-tbl-sticky td:first-child { min-width: 72px; }
 .pdf-sheet--landscape table td.num, .pdf-sheet--landscape table th.num { white-space: nowrap; }
 /* Primera columna fija al hacer scroll. */
 .pdf-tbl-sticky th:first-child, .pdf-tbl-sticky td:first-child {

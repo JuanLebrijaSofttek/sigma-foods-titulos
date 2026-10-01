@@ -59,8 +59,9 @@ function nacionalidadField(value = 'Mexicana') {
   const mostrarOtra = seleccion === 'Otra';
   return `<div class="nac-field">
       <div class="field"><label>Nacionalidad</label>
-        <input class="input nac-input" list="${uid}_list" id="${uid}_sel" value="${esc(seleccion)}" placeholder="Buscar nacionalidad…" autocomplete="off" oninput="nacionalidadChange('${uid}')">
-        <datalist id="${uid}_list">${lista.map(n => `<option value="${esc(n)}"></option>`).join('')}</datalist>
+        <select class="select nac-input" id="${uid}_sel" onchange="nacionalidadChange('${uid}')">
+          ${lista.map(n => `<option value="${esc(n)}" ${n === seleccion ? 'selected' : ''}>${esc(n)}</option>`).join('')}
+        </select>
       </div>
       <div class="field nac-otra ${mostrarOtra ? '' : 'is-hidden'}" id="${uid}_otraWrap" style="margin-top:10px"><label>Especifica la nacionalidad</label>
         <input class="input" id="${uid}_otra" value="${esc(otraValor)}" placeholder="Escribe la nacionalidad"></div>
